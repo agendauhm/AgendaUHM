@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Agenda de consultorios</title>
+<meta name="theme-color" content="#7A2A94">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Consultorios">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--mo:#7A2A94;--mo2:#3E1450;--ro:#D6202F;--la:#F7EFFA;--bo:#E6D3EE;--tx:#2A1233;--mu:#7d6a87}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{font-family:Figtree,system-ui,sans-serif;background:var(--la);color:var(--tx);padding-bottom:env(safe-area-inset-bottom)}
+header{background:#fff;padding:calc(env(safe-area-inset-top) + 10px) 14px 10px;display:flex;align-items:center;gap:12px;border-bottom:3px solid var(--mo);position:sticky;top:0;z-index:5}
+header img{width:52px;height:52px;border-radius:10px}
+header h1{font-size:19px;line-height:1.1;margin:0;color:var(--mo2);font-weight:800}
+header p{margin:2px 0 0;font-size:12.5px;color:var(--mu)}
+#inst{margin-left:auto;border:0;background:var(--ro);color:#fff;font:700 13px Figtree,sans-serif;padding:9px 13px;border-radius:20px}
+.tip{margin:10px 12px 0;padding:10px 12px;border-radius:12px;background:#fff;border:1px solid var(--bo);font-size:13px;display:flex;gap:10px;align-items:center}
+.tip button{margin-left:auto;border:0;background:none;font-size:18px;color:var(--mu)}
+.tip.demo{background:#fff4d6;border-color:#f0d589}
+main{max-width:640px;margin:0 auto;padding:12px}
+.wk{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.wk b{font-size:16px;color:var(--mo2)}
+.wk button{width:40px;height:40px;border-radius:50%;border:1px solid var(--bo);background:#fff;font-size:20px;color:var(--mo)}
+.wk .hoy{width:auto;padding:0 14px;border-radius:20px;font:700 13px Figtree,sans-serif}
+.days{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:12px}
+.day{border:1px solid var(--bo);background:#fff;border-radius:14px;padding:7px 0;text-align:center;font:600 12px Figtree,sans-serif;color:var(--mu)}
+.day strong{display:block;font-size:18px;color:var(--tx);font-weight:800}
+.day.on{background:var(--mo);border-color:var(--mo);color:#e9d2f2}
+.day.on strong{color:#fff}
+.day.today:not(.on) strong{color:var(--ro)}
+h2.dt{font-size:15px;margin:0 0 8px;color:var(--mo2)}
+.grid{display:grid;grid-template-columns:44px repeat(5,1fr);gap:4px;background:#fff;padding:6px;border-radius:16px;border:1px solid var(--bo)}
+.g{text-align:center;font-weight:800;font-size:12px;padding:6px 0;color:#fff;border-radius:8px}
+.g.nut{background:var(--ro);grid-column:span 2}.g.psi{background:var(--mo);grid-column:span 3}
+.r{font-size:10.5px;font-weight:700;text-align:center;padding:3px 0 5px;color:var(--mu);line-height:1.1}
+.h{display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--mu)}
+.c{height:46px;border-radius:9px;border:1px dashed var(--bo);background:#fff;color:#cdb6d8;font:700 18px Figtree,sans-serif;padding:0 3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.c.t{border:0;color:#fff;font-size:11.5px}
+.c.t.nut{background:var(--ro)}.c.t.psi{background:var(--mo)}
+.c.mine{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--mo2)}
+.c:active{transform:scale(.96)}
+#ov{position:fixed;inset:0;background:rgba(40,10,55,.55);display:flex;align-items:flex-end;justify-content:center;z-index:20}
+#ov[hidden]{display:none}
+.sheet{background:#fff;width:100%;max-width:520px;border-radius:22px 22px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom));animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:.4}}
+.sheet h2{margin:0;font-size:20px;color:var(--mo2)}
+.sheet p{margin:4px 0 16px;color:var(--mu);font-size:14px}
+.sheet input{width:100%;font:600 17px Figtree,sans-serif;padding:14px;border:2px solid var(--bo);border-radius:12px;margin-bottom:12px;color:var(--tx)}
+.sheet input:focus{outline:0;border-color:var(--mo)}
+.btn{width:100%;border:0;border-radius:12px;padding:15px;font:800 16px Figtree,sans-serif;color:#fff;background:var(--mo)}
+.btn.red{background:var(--ro)}
+.who{font-size:24px;font-weight:800;margin:0 0 16px}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--mo2);color:#fff;padding:12px 18px;border-radius:24px;font-size:14px;font-weight:600;z-index:30;max-width:90%;text-align:center}
+#toast[hidden]{display:none}
+.mvb{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));background:var(--mo2);color:#fff;border-radius:16px;padding:12px 14px;display:flex;gap:10px;align-items:center;font-size:14px;z-index:8;box-shadow:0 6px 20px rgba(40,10,55,.35)}
+.mvb[hidden]{display:none}
+.mvb button{margin-left:auto;border:0;background:#fff;color:var(--mo2);font:800 13px Figtree,sans-serif;padding:9px 13px;border-radius:18px}
+.exp{display:block;margin:18px auto 80px;border:1px solid var(--bo);background:#fff;color:var(--mo);font:700 14px Figtree,sans-serif;padding:11px 16px;border-radius:20px}
+.note{font-size:13.5px;color:var(--mu);margin:0 0 4px!important}
+@media (prefers-reduced-motion:reduce){.sheet{animation:none}}
+</style>
+</head>
+<body>
+<header>
+  <img src="logo.png" alt="Logo de la universidad">
+  <div><h1>Agenda de consultorios</h1><p>Toca un espacio libre para reservarlo</p></div>
+  <button id="inst" hidden>Instalar</button>
+</header>
+<div id="tips"></div>
+<main>
+  <div class="wk"><button id="prev" aria-label="Semana anterior">‹</button><b id="wl"></b><button class="hoy" id="hoy">Hoy</button><button id="next" aria-label="Semana siguiente">›</button></div>
+  <div class="days" id="days"></div>
+  <h2 class="dt" id="dt"></h2>
+  <div class="grid" id="grid"></div>
+  <button class="exp" id="exp">Descargar historial en Excel</button>
+</main>
+<div class="mvb" id="mv" hidden></div>
+<div id="ov" hidden><div class="sheet" id="sh"></div></div>
+<div id="toast" hidden></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script>
+const ROOMS=[{id:'C1',s:'Cons. 1',l:'Consultorio 1 · Nutrición',a:'nut'},{id:'C2',s:'Cons. 2',l:'Consultorio 2 · Nutrición',a:'nut'},{id:'C3',s:'Cons. 3',l:'Consultorio 3 · Psicología',a:'psi'},{id:'TJ',s:'T. de juego',l:'Terapia de juego · Psicología',a:'psi'},{id:'CG',s:'Cám. Gesell',l:'Cámara de Gesell · Psicología',a:'psi'}];
+const HOURS=[8,9,10,11,12,13,14,15,16,17,18];
+const DN=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'],DS=['Lun','Mar','Mié','Jue','Vie','Sáb'];
+const MS=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const $=id=>document.getElementById(id);
+const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const addD=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const monday=d=>{const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());return addD(x,-((x.getDay()+6)%7))};
+const owner=localStorage.getItem('owner')||(()=>{const o=Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem('owner',o);return o})();
+
+/* ---------- Almacenamiento: Firebase o modo demo local ---------- */
+const cfg=window.FIREBASE_CONFIG,demo=!(cfg&&cfg.apiKey);
+let store;
+if(!demo){
+  firebase.initializeApp(cfg);const db=firebase.firestore(),col=db.collection('reservas');
+  store={
+    sub:(f,cb)=>col.where('fecha','==',f).onSnapshot(s=>cb(s.docs.map(d=>({id:d.id,...d.data()}))),()=>toast('Sin conexión con el servidor')),
+    reserve:(id,data)=>db.runTransaction(async t=>{const r=col.doc(id);if((await t.get(r)).exists)throw new Error('ocupado');t.set(r,data)}),
+    free:id=>col.doc(id).delete(),
+    move:(oid,nid,data)=>db.runTransaction(async t=>{const n=col.doc(nid);if((await t.get(n)).exists)throw new Error('ocupado');t.set(n,data);t.delete(col.doc(oid))}),
+    all:()=>col.get().then(s=>s.docs.map(d=>d.data()))};
+}else{
+  const rd=()=>JSON.parse(localStorage.getItem('demo')||'{}'),wr=o=>localStorage.setItem('demo',JSON.stringify(o));
+  let cb=null,cur='';const fire=()=>cb&&cb(Object.entries(rd()).filter(([k,v])=>v.fecha===cur).map(([k,v])=>({id:k,...v})));
+  store={sub:(f,c)=>{cur=f;cb=c;fire();return()=>{cb=null}},
+    reserve:async(id,data)=>{const o=rd();if(o[id])throw new Error('ocupado');o[id]=data;wr(o);fire()},
+    free:async id=>{const o=rd();delete o[id];wr(o);fire()},
+    move:async(oid,nid,data)=>{const o=rd();if(o[nid])throw new Error('ocupado');o[nid]=data;delete o[oid];wr(o);fire()},
+    all:async()=>Object.values(rd())};
+}
+
+/* ---------- Estado y vistas ---------- */
+let t0=new Date();if(t0.getDay()===0)t0=addD(t0,1);
+let ws=monday(t0),sel=(t0.getDay()+6)%7,data=[],unsub=null;
+const dateOf=i=>addD(ws,i);
+const fmt=d=>d.getDate()+' '+MS[d.getMonth()];
+
+function renderDays(){
+  const a=dateOf(0),b=dateOf(5);
+  $('wl').textContent=fmt(a)+' – '+fmt(b);
+  $('days').innerHTML='';
+  DS.forEach((n,i)=>{const d=dateOf(i),el=document.createElement('button');
+    el.className='day'+(i===sel?' on':'')+(ymd(d)===ymd(new Date())?' today':'');
+    el.innerHTML=n+'<strong>'+d.getDate()+'</strong>';
+    el.onclick=()=>{sel=i;load()};$('days').appendChild(el)});
+}
+function load(){
+  renderDays();const d=dateOf(sel);
+  $('dt').textContent=DN[sel]+' '+d.getDate()+' de '+MS[d.getMonth()];
+  unsub&&unsub();data=[];renderGrid();
+  unsub=store.sub(ymd(d),l=>{data=l;renderGrid()});
+}
+function renderGrid(){
+  const g=$('grid'),m={};data.forEach(r=>m[r.hora+'_'+r.consultorio]=r);
+  g.innerHTML='<div></div><div class="g nut">Nutrición</div><div class="g psi">Psicología</div><div></div>'+ROOMS.map(r=>'<div class="r">'+r.s+'</div>').join('');
+  HOURS.forEach(h=>{
+    const l=document.createElement('div');l.className='h';l.textContent=h+':00';g.appendChild(l);
+    ROOMS.forEach(r=>{const x=m[h+'_'+r.id],c=document.createElement('button');
+      if(x){c.className='c t '+r.a+(x.owner===owner?' mine':'');c.textContent=x.nombre}else{c.className='c';c.textContent='+'}
+      c.setAttribute('aria-label',r.l+', '+h+':00, '+(x?'ocupado por '+x.nombre:'libre'));
+      c.onclick=()=>openSheet(h,r,x);g.appendChild(c)});
+  });
+}
+
+/* ---------- Hoja de reserva ---------- */
+const close=()=>{$('ov').hidden=true};
+$('ov').onclick=e=>{if(e.target===$('ov'))close()};
+let moving=null;
+function setMoving(m){moving=m;const b=$('mv');b.hidden=!m;
+  if(m){b.innerHTML='<span>Moviendo la cita de <b></b>. Elige un espacio libre, puedes cambiar de día.</span><button>Cancelar</button>';
+    b.querySelector('b').textContent=m.x.nombre;b.querySelector('button').onclick=()=>setMoving(null)}}
+function openSheet(h,r,x){
+  const d=dateOf(sel),f=ymd(d),sh=$('sh'),sub=DN[sel]+' '+fmt(d)+' · '+h+':00 a '+(h+1)+':00',id=f+'_'+h+'_'+r.id;
+  if(moving){
+    if(x){toast('Ese espacio ya está ocupado');return}
+    sh.innerHTML='<h2>Mover cita</h2><p></p><button class="btn" id="ok">Confirmar cambio</button>';
+    sh.querySelector('p').textContent='Pasará a '+r.l+' · '+sub;
+    $('ok').onclick=async()=>{$('ok').disabled=true;
+      try{await store.move(moving.id,id,{fecha:f,hora:h,consultorio:r.id,nombre:moving.x.nombre,owner,ts:Date.now()});setMoving(null);close();toast('Cita movida')}
+      catch(e){$('ok').disabled=false;toast(e.message==='ocupado'?'Alguien acaba de tomar ese horario':'No se pudo mover. Revisa tu conexión')}};
+    $('ov').hidden=false;return;
+  }
+  if(!x){
+    sh.innerHTML='<h2>'+r.l+'</h2><p>'+sub+'</p><input id="nm" maxlength="40" placeholder="Tu nombre" autocomplete="name"><button class="btn" id="ok">Reservar</button>';
+    const nm=$('nm');nm.value=localStorage.getItem('nombre')||'';
+    const go=async()=>{const n=nm.value.trim();if(!n){toast('Escribe tu nombre para reservar');nm.focus();return}
+      localStorage.setItem('nombre',n);$('ok').disabled=true;
+      try{await store.reserve(id,{fecha:f,hora:h,consultorio:r.id,nombre:n,owner,ts:Date.now()});close();toast('Reservado: '+r.s+' a las '+h+':00')}
+      catch(e){$('ok').disabled=false;toast(e.message==='ocupado'?'Alguien acaba de tomar ese horario':'No se pudo guardar. Revisa tu conexión')}};
+    $('ok').onclick=go;nm.onkeydown=e=>{if(e.key==='Enter')go()};
+    $('ov').hidden=false;setTimeout(()=>nm.focus(),60);
+  }else{
+    const mine=x.owner===owner,past=f<ymd(new Date());
+    sh.innerHTML='<h2>'+r.l+'</h2><p>'+sub+'</p><div class="who"></div>'+
+      (past?'<p class="note">Este día ya pasó. Queda como registro y no se puede modificar.</p>':
+       mine?'<button class="btn" id="mvb" style="margin-bottom:10px">Mover a otro horario</button><button class="btn red" id="fr">Liberar este horario</button>':
+       '<p class="note">Solo quien la agendó puede modificarla, desde su propio dispositivo.</p>');
+    sh.querySelector('.who').textContent=x.nombre;
+    if(!past&&mine){
+      $('mvb').onclick=()=>{setMoving({id,x});close();toast('Elige el nuevo espacio')};
+      let sure=false;$('fr').onclick=async()=>{
+        if(!sure){sure=true;$('fr').textContent='Toca otra vez para confirmar';return}
+        try{await store.free(id);close();toast('Horario liberado')}catch(e){toast('No se pudo liberar')}};
+    }
+    $('ov').hidden=false;
+  }
+}
+let tt;function toast(m){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2600)}
+
+async function exportar(){
+  toast('Preparando archivo…');
+  try{
+    if(!window.XLSX)await new Promise((ok,no)=>{const e=document.createElement('script');e.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';e.onload=ok;e.onerror=no;document.head.appendChild(e)});
+    const L=await store.all();L.sort((a,b)=>a.fecha.localeCompare(b.fecha)||a.hora-b.hora);
+    const rows=L.map(r=>{const rm=ROOMS.find(x=>x.id===r.consultorio),d=new Date(r.fecha+'T00:00');
+      return{Fecha:r.fecha,'Día':['Domingo'].concat(DN)[d.getDay()],Hora:r.hora+':00',Consultorio:rm.l.split(' · ')[0],'Área':rm.a==='nut'?'Nutrición':'Psicología',Nombre:r.nombre}});
+    const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),'Reservas');
+    XLSX.writeFile(wb,'agenda-consultorios-'+ymd(new Date())+'.xlsx');
+  }catch(e){toast('No se pudo exportar. Revisa tu conexión')}
+}
+$('exp').onclick=exportar;
+
+/* ---------- Navegación ---------- */
+$('prev').onclick=()=>{ws=addD(ws,-7);load()};
+$('next').onclick=()=>{ws=addD(ws,7);load()};
+$('hoy').onclick=()=>{let t=new Date();if(t.getDay()===0)t=addD(t,1);ws=monday(t);sel=(t.getDay()+6)%7;load()};
+
+/* ---------- Instalación PWA ---------- */
+const tips=$('tips');
+function tip(html,cls,key){if(key&&localStorage.getItem(key))return;const d=document.createElement('div');d.className='tip '+(cls||'');d.innerHTML='<span>'+html+'</span>'+(key?'<button aria-label="Cerrar">×</button>':'');
+  if(key)d.querySelector('button').onclick=()=>{localStorage.setItem(key,1);d.remove()};tips.appendChild(d)}
+if(demo)tip('<b>Modo demostración:</b> las reservas solo se guardan en este dispositivo. Conecta Firebase para compartirlas (ver README).','demo');
+let dp;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;$('inst').hidden=false});
+$('inst').onclick=async()=>{dp.prompt();await dp.userChoice;$('inst').hidden=true};
+const ios=/iphone|ipad|ipod/i.test(navigator.userAgent),standalone=navigator.standalone||matchMedia('(display-mode: standalone)').matches;
+if(ios&&!standalone)tip('Para instalarla en tu iPhone: toca <b>Compartir</b> y luego <b>Agregar a inicio</b>.','','tipios');
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
+load();
+</script>
+</body>
+</html>
