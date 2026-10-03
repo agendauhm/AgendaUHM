@@ -176,9 +176,9 @@ function openSheet(h,r,x){
   }
   if(!x){
     sh.innerHTML='<h2>'+r.l+'</h2><p>'+sub+'</p><input id="nm" maxlength="40" placeholder="Tu nombre" autocomplete="name"><button class="btn" id="ok">Reservar</button>';
-    const nm=$('nm');nm.value=localStorage.getItem('nombre')||'';
+    const nm=$('nm');
     const go=async()=>{const n=nm.value.trim();if(!n){toast('Escribe tu nombre para reservar');nm.focus();return}
-      localStorage.setItem('nombre',n);$('ok').disabled=true;
+      $('ok').disabled=true;
       try{await store.reserve(id,{fecha:f,hora:h,consultorio:r.id,nombre:n,owner,ts:Date.now()});close();toast('Reservado: '+r.s+' a las '+h+':00')}
       catch(e){$('ok').disabled=false;toast(e.message==='ocupado'?'Alguien acaba de tomar ese horario':'No se pudo guardar. Revisa tu conexión')}};
     $('ok').onclick=go;nm.onkeydown=e=>{if(e.key==='Enter')go()};
