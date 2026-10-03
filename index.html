@@ -184,13 +184,12 @@ function openSheet(h,r,x){
     $('ok').onclick=go;nm.onkeydown=e=>{if(e.key==='Enter')go()};
     $('ov').hidden=false;setTimeout(()=>nm.focus(),60);
   }else{
-    const mine=x.owner===owner,past=f<ymd(new Date());
+    const past=f<ymd(new Date());
     sh.innerHTML='<h2>'+r.l+'</h2><p>'+sub+'</p><div class="who"></div>'+
       (past?'<p class="note">Este día ya pasó. Queda como registro y no se puede modificar.</p>':
-       mine?'<button class="btn" id="mvb" style="margin-bottom:10px">Mover a otro horario</button><button class="btn red" id="fr">Liberar este horario</button>':
-       '<p class="note">Solo quien la agendó puede modificarla, desde su propio dispositivo.</p>');
+       '<button class="btn" id="mvb" style="margin-bottom:10px">Mover a otro horario</button><button class="btn red" id="fr">Liberar este horario</button>');
     sh.querySelector('.who').textContent=x.nombre;
-    if(!past&&mine){
+    if(!past){
       $('mvb').onclick=()=>{setMoving({id,x});close();toast('Elige el nuevo espacio')};
       let sure=false;$('fr').onclick=async()=>{
         if(!sure){sure=true;$('fr').textContent='Toca otra vez para confirmar';return}

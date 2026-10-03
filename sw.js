@@ -1,4 +1,4 @@
-const C='consultorios-v2',A=['./','index.html','firebase-config.js','manifest.json','logo.png','icon-192.png'];
+const C='consultorios-v3',A=['./','index.html','firebase-config.js','manifest.json','logo.png','icon-192.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(A)));self.skipWaiting()});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))));self.clients.claim()});
 self.addEventListener('fetch',e=>{
