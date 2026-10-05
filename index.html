@@ -44,9 +44,14 @@ h2.dt{font-size:15px;margin:0 0 8px;color:var(--mo2)}
 .g.nut{background:var(--ro);grid-column:span 2}.g.psi{background:var(--mo);grid-column:span 3}
 .r{font-size:10.5px;font-weight:700;text-align:center;padding:3px 0 5px;color:var(--mu);line-height:1.1}
 .h{display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--mu)}
-.c{height:46px;border-radius:9px;border:1px dashed var(--bo);background:#fff;color:#cdb6d8;font:700 18px Figtree,sans-serif;padding:0 3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.c{height:46px;border-radius:9px;border:1px dashed var(--bo);background:#fff;color:#cdb6d8;font:700 18px Figtree,sans-serif;padding:0 3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;position:relative}
 .c.t{border:0;color:#fff;font-size:11.5px}
 .c.t.nut{background:var(--ro)}.c.t.psi{background:var(--mo)}
+.c.nt{padding-right:22px}
+.bd{position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:#fff;color:var(--mo2);font:800 11px/18px Figtree,sans-serif;text-align:center}
+#pop{position:fixed;z-index:25;max-width:230px;background:var(--mo2);color:#fff;padding:10px 12px;border-radius:12px;font-size:13px;line-height:1.35;box-shadow:0 6px 20px rgba(40,10,55,.35)}
+#pop[hidden]{display:none}#pop b{display:block;margin-bottom:2px}
+.nt2{background:var(--la);border-radius:12px;padding:10px 12px;font-size:14px;margin:-6px 0 14px;color:var(--tx)}
 .c.mine{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--mo2)}
 .c:active{transform:scale(.96)}
 #ov{position:fixed;inset:0;background:rgba(40,10,55,.55);display:flex;align-items:flex-end;justify-content:center;z-index:20}
@@ -86,6 +91,7 @@ h2.dt{font-size:15px;margin:0 0 8px;color:var(--mo2)}
 </main>
 <div class="mvb" id="mv" hidden></div>
 <div id="ov" hidden><div class="sheet" id="sh"></div></div>
+<div id="pop" hidden></div>
 <div id="toast" hidden></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -150,7 +156,9 @@ function renderGrid(){
   HOURS.forEach(h=>{
     const l=document.createElement('div');l.className='h';l.textContent=h+':00';g.appendChild(l);
     ROOMS.forEach(r=>{const x=m[h+'_'+r.id],c=document.createElement('button');
-      if(x){c.className='c t '+r.a+(x.owner===owner?' mine':'');c.textContent=x.nombre}else{c.className='c';c.textContent='+'}
+      if(x){c.className='c t '+r.a+(x.owner===owner?' mine':'');c.textContent=x.nombre;
+        if(x.nota){c.classList.add('nt');const b=document.createElement('span');b.className='bd';b.textContent='i';b.setAttribute('role','button');b.setAttribute('aria-label','Ver nota');b.onclick=e=>showNote(e,x);c.appendChild(b)}
+      }else{c.className='c';c.textContent='+'}
       c.setAttribute('aria-label',r.l+', '+h+':00, '+(x?'ocupado por '+x.nombre:'libre'));
       c.onclick=()=>openSheet(h,r,x);g.appendChild(c)});
   });
@@ -170,18 +178,18 @@ function openSheet(h,r,x){
     sh.innerHTML='<h2>Mover cita</h2><p></p><button class="btn" id="ok">Confirmar cambio</button>';
     sh.querySelector('p').textContent='Pasará a '+r.l+' · '+sub;
     $('ok').onclick=async()=>{$('ok').disabled=true;
-      try{await store.move(moving.id,id,{fecha:f,hora:h,consultorio:r.id,nombre:moving.x.nombre,owner,ts:Date.now()});setMoving(null);close();toast('Cita movida')}
+      try{await store.move(moving.id,id,Object.assign({fecha:f,hora:h,consultorio:r.id,nombre:moving.x.nombre,owner,ts:Date.now()},moving.x.nota?{nota:moving.x.nota}:{}));setMoving(null);close();toast('Cita movida')}
       catch(e){$('ok').disabled=false;toast(e.message==='ocupado'?'Alguien acaba de tomar ese horario':'No se pudo mover. Revisa tu conexión')}};
     $('ov').hidden=false;return;
   }
   if(!x){
-    sh.innerHTML='<h2>'+r.l+'</h2><p>'+sub+'</p><input id="nm" maxlength="40" placeholder="Tu nombre" autocomplete="name"><button class="btn" id="ok">Reservar</button>';
+    sh.innerHTML='<h2>'+r.l+'</h2><p>'+sub+'</p><input id="nm" maxlength="40" placeholder="Tu nombre" autocomplete="name"><input id="nt" maxlength="80" placeholder="Nota (opcional): ej. de 10:30 a 11:30"><button class="btn" id="ok">Reservar</button>';
     const nm=$('nm');
     const go=async()=>{const n=nm.value.trim();if(!n){toast('Escribe tu nombre para reservar');nm.focus();return}
-      $('ok').disabled=true;
-      try{await store.reserve(id,{fecha:f,hora:h,consultorio:r.id,nombre:n,owner,ts:Date.now()});close();toast('Reservado: '+r.s+' a las '+h+':00')}
+      const nota=$('nt').value.trim();$('ok').disabled=true;
+      try{await store.reserve(id,Object.assign({fecha:f,hora:h,consultorio:r.id,nombre:n,owner,ts:Date.now()},nota?{nota}:{}));close();toast('Reservado: '+r.s+' a las '+h+':00')}
       catch(e){$('ok').disabled=false;toast(e.message==='ocupado'?'Alguien acaba de tomar ese horario':'No se pudo guardar. Revisa tu conexión')}};
-    $('ok').onclick=go;nm.onkeydown=e=>{if(e.key==='Enter')go()};
+    $('ok').onclick=go;nm.onkeydown=e=>{if(e.key==='Enter')go()};$('nt').onkeydown=nm.onkeydown;
     $('ov').hidden=false;setTimeout(()=>nm.focus(),60);
   }else{
     const past=f<ymd(new Date());
@@ -189,6 +197,7 @@ function openSheet(h,r,x){
       (past?'<p class="note">Este día ya pasó. Queda como registro y no se puede modificar.</p>':
        '<button class="btn" id="mvb" style="margin-bottom:10px">Mover a otro horario</button><button class="btn red" id="fr">Liberar este horario</button>');
     sh.querySelector('.who').textContent=x.nombre;
+    if(x.nota){const n=document.createElement('div');n.className='nt2';n.textContent='Nota: '+x.nota;sh.querySelector('.who').after(n)}
     if(!past){
       $('mvb').onclick=()=>{setMoving({id,x});close();toast('Elige el nuevo espacio')};
       let sure=false;$('fr').onclick=async()=>{
@@ -198,6 +207,12 @@ function openSheet(h,r,x){
     $('ov').hidden=false;
   }
 }
+function showNote(e,x){e.stopPropagation();const p=$('pop');p.innerHTML='<b></b><span></span>';p.firstChild.textContent=x.nombre;p.lastChild.textContent=x.nota;p.hidden=false;
+  const b=e.currentTarget.getBoundingClientRect(),w=p.offsetWidth,hh=p.offsetHeight;
+  p.style.left=Math.max(8,Math.min(b.left+b.width/2-w/2,innerWidth-w-8))+'px';
+  p.style.top=(b.bottom+8+hh>innerHeight-8?b.top-hh-8:b.bottom+8)+'px'}
+document.addEventListener('click',()=>{$('pop').hidden=true});
+window.addEventListener('scroll',()=>{$('pop').hidden=true},true);
 let tt;function toast(m){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2600)}
 
 async function exportar(){
@@ -206,7 +221,7 @@ async function exportar(){
     if(!window.XLSX)await new Promise((ok,no)=>{const e=document.createElement('script');e.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';e.onload=ok;e.onerror=no;document.head.appendChild(e)});
     const L=await store.all();L.sort((a,b)=>a.fecha.localeCompare(b.fecha)||a.hora-b.hora);
     const rows=L.map(r=>{const rm=ROOMS.find(x=>x.id===r.consultorio),d=new Date(r.fecha+'T00:00');
-      return{Fecha:r.fecha,'Día':['Domingo'].concat(DN)[d.getDay()],Hora:r.hora+':00',Consultorio:rm.l.split(' · ')[0],'Área':rm.a==='nut'?'Nutrición':'Psicología',Nombre:r.nombre}});
+      return{Fecha:r.fecha,'Día':['Domingo'].concat(DN)[d.getDay()],Hora:r.hora+':00',Consultorio:rm.l.split(' · ')[0],'Área':rm.a==='nut'?'Nutrición':'Psicología',Nombre:r.nombre,Nota:r.nota||''}});
     const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),'Reservas');
     XLSX.writeFile(wb,'agenda-consultorios-'+ymd(new Date())+'.xlsx');
   }catch(e){toast('No se pudo exportar. Revisa tu conexión')}
